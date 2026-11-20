@@ -1,0 +1,46 @@
+module tb_sequence_detector;
+    reg clk;
+    reg reset;
+    reg stream_in;
+    reg [3:0] target_pattern;
+    wire detected;
+
+    // Instantiate the Unit Under Test (UUT)
+    sequence_detector uut (
+                .clk(clk),
+                .reset(reset),
+                .stream_in(stream_in),
+                .target_pattern(target_pattern),
+                .detected(detected)
+    );
+
+    // Clock generation (10ns period)
+    always #5 clk = ~clk;
+
+    initial begin
+        // Initialize inputs
+        clk = 0;
+        reset = 1;
+        stream_in = 0;
+        target_pattern = 4'b1011; // Target pattern: 1011
+
+        #20;
+        reset = 0;
+
+        // Apply bit stream matching 1011
+        #10 stream_in = 1;
+        #10 stream_in = 0;
+        #10 stream_in = 1;
+        #10 stream_in = 1; // LED/detected should go HIGH here
+
+        #20;
+        // Apply non-matching bit stream
+        #10 stream_in = 0;
+        #10 stream_in = 1;
+        #10 stream_in = 0;
+        #10 stream_in = 1;
+
+        #50;
+        $finish;
+    end
+endmodule
